@@ -3,7 +3,7 @@ package com.apptivedeals.entity;
 import java.util.Date;
 import java.util.Objects;
 
-public class Product extends AbstractClassificationEntity {
+public class Product {
 	public Long id;
 	public String productId;
 	public String name;

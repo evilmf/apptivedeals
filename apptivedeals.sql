@@ -44,7 +44,17 @@ create table products (
   update_date timestamp,
   name_tsvector tsvector
 );
-create unique index product_unique_idx on products (lower(product_id), brand_id);
+create unique index products_unique_idx on products (lower(product_id), brand_id);
+
+create table collections (
+  id bigserial primary key,
+  collection_id text,
+  brand_id bigint references brands (id),
+  product_id bigint references products (id),
+  create_date timestamp,
+  update_date timestamp
+);
+create unique index collections_unique_idx on collections (lower(collection_id), brand_id, product_id);
 
 create table images (
   id bigserial primary key,
@@ -80,3 +90,35 @@ drop table snapshot_detail cascade;
 drop table snapshots cascade;
 */
 
+/*
+Queries
+*/
+--Brand
+insert into brands (name, create_date, update_date)
+values (:brand, now(), now())
+on conflict (lower(name)) do update set id = EXCLUDED.id
+returning id, name, create_date, update_date;
+
+--Gender
+insert into genders (name, create_date, update_date)
+values (:gender, now(), now())
+on conflict (lower(name)) do update set id = EXCLUDED.id
+returning id, name, create_date, update_date;
+
+--Category
+insert into categories (name, create_date, update_date)
+values (:category, now(), now())
+on conflict (lower(name)) do update set id = EXCLUDED.id
+returning id, name, create_date, update_date;
+
+--Product
+insert into products (product_id, name, url, brand_id, gender_id, category_id, create_date, update_date, name_tsvector)
+values (:product_id, :name, :url, :brand_id, :gender_id, :category_id, now(), now(), to_tsvector('simple', :name))
+on conflict (lower(product_id), brand_id) do update set id = EXCLUDED.id
+returning id, product_id, name, url, brand_id, gender_id, category_id, create_date, update_date;
+
+--Collection
+insert into collections (collection_id, brand_id, product_id, create_date, update_date)
+values (:collection_id, :brand_id, :product_id, now(), now())
+on conflict (lower(collection_id), brand_id, product_id) do update set id = EXCLUDED.id
+returning id, collection_id, brand_id, product_id, create_date, update_date;

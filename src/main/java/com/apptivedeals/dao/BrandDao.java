@@ -21,7 +21,7 @@ public class BrandDao {
 	
 	private static final String INSERT_BRAND = "insert into brands (name, create_date, update_date) "
 			+ "values (:brand, now(), now()) " 
-			+ "on conflict (lower(name)) do update set id = EXCLUDED.id "
+			+ "on conflict (lower(name)) do update set name = :brand "
 			+ "returning id, name, create_date, update_date";
 	
 	public Brand insert(String brand) {
@@ -46,4 +46,5 @@ public class BrandDao {
 		});
 				
 	}
+	
 }

@@ -1,10 +1,10 @@
 package com.apptivedeals.store;
 
-import java.util.List;
+import java.util.Map;
 
-import com.apptivedeals.entity.Product;
+import com.apptivedeals.entity.Price;
 
 public interface Crawler {
 	
-	public List<Product> getProducts();
+	public Map<Long, Price> getProducts();
 }

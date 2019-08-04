@@ -1,0 +1,39 @@
+{
+  "name": "Apptivedeals-Web-UI",
+  "version": "0.1.0",
+  "description": "Apptivedeals",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/evilmf/apptivedeals.git"
+  },
+  "keywords": [
+    "abercrombie",
+    "hollister",
+    "af"
+  ],
+  "author": "Jay Long",
+  "license": "Apache-2.0",
+  "homepage": "http://apptivedeals.com",
+  "dependencies": {
+    "@fortawesome/fontawesome-free": "^5.10.0",
+    "bootstrap": "^4.3.1",
+    "css-loader": "^3.1.0",
+    "jquery": "^3.4.1",
+    "lodash": "^4.17.15",
+    "popper.js": "^1.15.0",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
+    "style-loader": "^0.23.1"
+  },
+  "scripts": {
+    "watch": "webpack --watch -d"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.5.5",
+    "@babel/preset-env": "^7.5.5",
+    "@babel/preset-react": "^7.0.0",
+    "babel-loader": "^8.0.6",
+    "webpack": "^4.38.0",
+    "webpack-cli": "^3.3.6"
+  }
+}

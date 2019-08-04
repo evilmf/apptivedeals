@@ -27,8 +27,8 @@ public class CollectionDao {
 	public Collection insert(String collectionId, Long brandId, Long productId) {
 		MapSqlParameterSource params = new MapSqlParameterSource();
 		params.addValue("collection_id", collectionId, Types.VARCHAR);
-		params.addValue("brand_id", brandId, Types.VARCHAR);
-		params.addValue("product_id", productId, Types.VARCHAR);
+		params.addValue("brand_id", brandId, Types.BIGINT);
+		params.addValue("product_id", productId, Types.BIGINT);
 		
 		return namedParameterJdbcTemplate.query(INSERT_COLLECTION, params, new ResultSetExtractor<Collection>() {
 

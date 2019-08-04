@@ -22,7 +22,7 @@ public class CategoryDao {
 	
 	private static final String INSERT_CATEGORY = "insert into categories (name, create_date, update_date) "
 			+ "values (:category, now(), now()) " 
-			+ "on conflict (lower(name)) do update set id = EXCLUDED.id "
+			+ "on conflict (lower(name)) do update set name = :category "
 			+ "returning id, name, create_date, update_date";
 	
 	public Category insert(String category) {

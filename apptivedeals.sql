@@ -1,11 +1,15 @@
 /*
 AF API:
 1. Get product info by product ID
-https://www.abercrombie.com/api/ecomm/a-us/product/list?productIds=11244493%2C19334845%2C24875325
+https://www.abercrombie.com/api/ecomm/a-us/product/list?productIds=11244493
+https://www.hollisterco.com/api/ecomm/h-us/product/list?productIds=27043827
 2. Get collection info by collection ID (For category hierarchy and collection products and their image)
+https://anf.scene7.com/is/image/anf/KIC_123-9132-2530-100_prod1?$product-anf-v1$&wid=800&hei=1000
+https://anf.scene7.com/is/image/anf/KIC_331-9513-1880-286_prod1?$product-anf-v1$&wid=800&hei=1000
 https://www.abercrombie.com/api/ecomm/a-us/product/list?collectionIds=188670
 3. Get products by category
 https://www.abercrombie.com/shop/AjaxNavAPIResponseJSON?catalogId=10901&categoryId=12204&langId=-1&requestType=category&rows=90&sort=bestmatch&start=0&storeId=10051
+https://www.hollisterco.com/shop/AjaxNavAPIResponseJSON?catalogId=10201&categoryId=12634&langId=-1&requestType=category&rows=90&sort=bestmatch&start=0&storeId=10251
 */
 
 create table brands (
@@ -60,9 +64,12 @@ create table images (
   id bigserial primary key,
   url text,
   product_id bigint references products (id),
+  is_primary boolean,
   create_date timestamp,
   update_date timestamp
 );
+create unique index images_unique_idx on images (product_id, lower(url));
+create unique index images_unique_primary_id on images (product_id, is_primary);
 
 create table snapshot_detail (
   id bigserial primary key,
@@ -70,11 +77,12 @@ create table snapshot_detail (
   price_regular numeric,
   price_discount numeric,
   snapshot_id bigint,
+  is_active boolean,
   create_date timestamp
 );
 
 create table snapshots (
-  id bigserial primary key,
+  id bigint primary key,
   snapshot jsonb,
   create_date timestamp,
   update_date timestamp
@@ -88,37 +96,32 @@ drop table images cascade;
 drop table products cascade;
 drop table snapshot_detail cascade;
 drop table snapshots cascade;
+
+truncate table brands cascade;
+truncate table categories cascade;
+truncate table genders cascade;
+truncate table images cascade;
+truncate table products cascade;
+truncate table snapshot_detail cascade;
+truncate table snapshots cascade;
 */
 
-/*
-Queries
-*/
---Brand
-insert into brands (name, create_date, update_date)
-values (:brand, now(), now())
-on conflict (lower(name)) do update set id = EXCLUDED.id
-returning id, name, create_date, update_date;
+select 'product' as type, count(*) cnt from products
+union
+select 'gender' as type, count(*) cnt from genders
+union
+select 'category' as type, count(*) cnt from categories
+union
+select 'image' as type, count(*) cnt from images
+union
+select 'brand' as type, count(*) cnt from brands
+union
+select 'collection' as type, count(*) cnt from collections
+union
+select 'snapshot' as type, count(*) cnt from snapshots
+order by 1;
 
---Gender
-insert into genders (name, create_date, update_date)
-values (:gender, now(), now())
-on conflict (lower(name)) do update set id = EXCLUDED.id
-returning id, name, create_date, update_date;
-
---Category
-insert into categories (name, create_date, update_date)
-values (:category, now(), now())
-on conflict (lower(name)) do update set id = EXCLUDED.id
-returning id, name, create_date, update_date;
-
---Product
-insert into products (product_id, name, url, brand_id, gender_id, category_id, create_date, update_date, name_tsvector)
-values (:product_id, :name, :url, :brand_id, :gender_id, :category_id, now(), now(), to_tsvector('simple', :name))
-on conflict (lower(product_id), brand_id) do update set id = EXCLUDED.id
-returning id, product_id, name, url, brand_id, gender_id, category_id, create_date, update_date;
-
---Collection
-insert into collections (collection_id, brand_id, product_id, create_date, update_date)
-values (:collection_id, :brand_id, :product_id, now(), now())
-on conflict (lower(collection_id), brand_id, product_id) do update set id = EXCLUDED.id
-returning id, collection_id, brand_id, product_id, create_date, update_date;
+select snapshot_id, count(*) cnt from snapshot_detail sd group by snapshot_id;
+select * from snapshot_detail where snapshot_id = 2;
+select * from products where id = 11385;
+select id, create_date from snapshots;

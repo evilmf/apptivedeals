@@ -21,7 +21,7 @@ public class GenderDao {
 	
 	private static final String INSERT_GENDER = "insert into genders (name, create_date, update_date) "
 			+ "values (:gender, now(), now()) " 
-			+ "on conflict (lower(name)) do update set id = EXCLUDED.id "
+			+ "on conflict (lower(name)) do update set name = :gender "
 			+ "returning id, name, create_date, update_date";
 	
 	public Gender insert(String gender) {

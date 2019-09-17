@@ -10,6 +10,7 @@ public class Snapshot {
 	public Map<Long /* brand ID */, Map<Long/* gender ID */, Map<Long /* category ID */, List<SnapshotProduct>>>> snapshotProducts;
 	public Date createDate;
 	public Date updateDate;
+	public Date snapshotDate;
 	
 	@Override
 	public String toString() {
@@ -17,7 +18,8 @@ public class Snapshot {
 				+ "id=" + id + ", "
 				+ "snapshotProducts=" + snapshotProducts + ", "
 				+ "createDate=" + createDate + ", "
-				+ "updateDate=" + updateDate
+				+ "updateDate=" + updateDate + ", "
+				+ "snapshotDate=" + snapshotDate
 				+ "]";
 	}
 	

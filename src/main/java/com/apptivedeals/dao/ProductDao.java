@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 import com.apptivedeals.entity.Price;
 import com.apptivedeals.entity.Product;
 import com.apptivedeals.entity.Snapshot.SnapshotProduct;
+import com.apptivedeals.to.ProductSearchTo;
 
 @Component
 public class ProductDao {
@@ -62,9 +63,81 @@ public class ProductDao {
 			+ "       c.id category_id, " 
 			+ "       c.name category " 
 			+ "from products p "
-			+ "join brands b on b.id = p.brand_id " + "join genders g on g.id = p.gender_id "
+			+ "join brands b on b.id = p.brand_id " 
+			+ "join genders g on g.id = p.gender_id "
 			+ "join categories c on c.id = p.category_id "
-			+ "join images i on i.product_id = p.id and i.is_primary is true " + "where p.id in (:product_ids)";
+			+ "join images i on i.product_id = p.id and i.is_primary is true " 
+			+ "where p.id in (:product_ids)";
+
+	private final static String UPDATE_PRODUCT_SUMMARY = "with product_summary_update as ( " 
+			+ "    select "
+			+ "        product_id as id, " 
+			+ "        min(price_discount) price_min, "
+			+ "        max(price_discount) price_max, "
+			+ "        (select id from images i where i.product_id = sd.product_id limit 1) image_id "
+			+ "    from snapshot_detail sd " 
+			+ "    where product_id in (:product_ids) " 
+			+ "    group by product_id " 
+			+ ") "
+			+ "insert into product_summary (id, price_min, price_max, image_id, create_date, update_date) "
+			+ "select id, price_min, price_max, image_id, now(), now() from product_summary_update "
+			+ "on conflict (id) do update set price_min = excluded.price_min, price_max = excluded.price_max, "
+			+ "                          update_date = now()";
+
+	private final static String SEARCH_PRODUCT = "select " 
+			+ "       p.product_id, " 
+			+ "       p.name product_name, "
+			+ "       b.name brand_name, " 
+			+ "       g.name gender_name, " 
+			+ "       c.name category_name, "
+			+ "       i.url image_url, " 
+			+ "       ps.price_min price_from, " 
+			+ "       ps.price_max price_to "
+			+ "from products p " 
+			+ "join brands b on b.id = p.brand_id " 
+			+ "join genders g on g.id = p.gender_id "
+			+ "join categories c on c.id = p.category_id " 
+			+ "join product_summary ps on ps.id = p.id "
+			+ "join images i on i.id = ps.image_id " 
+			+ "where name_tsvector @@ to_tsquery('simple', replace(regexp_replace(plainto_tsquery('simple', :keyword)::text, '('' )|(''$)', ''':* ', 'g'), ''' & ''', ' & ')) " 
+			+ "order by product_name "
+			+ "limit 100";
+	
+	public List<ProductSearchTo> searchProduct(String keyword) {
+		MapSqlParameterSource params = new MapSqlParameterSource();
+		params.addValue("keyword", keyword);
+		
+		return namedParameterJdbcTemplate.query(SEARCH_PRODUCT, params, new ResultSetExtractor<List<ProductSearchTo>>() {
+
+			@Override
+			public List<ProductSearchTo> extractData(ResultSet rs) throws SQLException, DataAccessException {
+				List<ProductSearchTo> productSearchResult = new LinkedList<ProductSearchTo>();
+				while (rs.next()) {
+					ProductSearchTo productSearchTo = new ProductSearchTo();
+					productSearchTo.productId = rs.getLong("product_id");
+					productSearchTo.productName = rs.getString("product_name");
+					productSearchTo.brand = rs.getString("brand_name");
+					productSearchTo.gender = rs.getString("gender_name");
+					productSearchTo.category = rs.getString("category_name");
+					productSearchTo.imageUrl = rs.getString("image_url");
+					productSearchTo.minPrice = rs.getFloat("price_from");
+					productSearchTo.maxPrice = rs.getFloat("price_to");
+					
+					productSearchResult.add(productSearchTo);
+				}
+				
+				return productSearchResult;
+			}
+			
+		});
+	}
+	
+	public int updateProductSummary(List<String> productIds) {
+		MapSqlParameterSource params = new MapSqlParameterSource();
+		params.addValue("product_ids", productIds);
+		
+		return namedParameterJdbcTemplate.update(UPDATE_PRODUCT_SUMMARY, params);
+	}
 	
 	public Product insert(String productId, String name, String url, Long brandId, Long genderId, Long categoryId) {
 		MapSqlParameterSource params = new MapSqlParameterSource();

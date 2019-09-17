@@ -123,7 +123,7 @@ public abstract class AbstractCrawler extends com.apptivedeals.store.AbstractCra
 	}
 	
 	private String generateImageUrl(com.apptivedeals.store.af.Product product) {
-		return String.format(getImageUrlThumbnailTpl(), product.productKIC, product.imageNameSuffix,
+		return String.format(getImageUrlThumbnailTpl(), product.imageId, product.imageNameSuffix,
 				product.imagePresets.imagePresetPrefix, product.imagePresets.imagePresetSuffix);
 	}
 	

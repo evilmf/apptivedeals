@@ -8,13 +8,13 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class Scheduler {
-	
+
 	@Autowired
 	private Monitor monitor;
-	
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(Scheduler.class);
-			
-	//@Scheduled(fixedDelay = 360000, initialDelay = 15000)
+
+	// @Scheduled(fixedDelay = 360000, initialDelay = 15000)
 	public void monitorRunner() {
 		LOGGER.info("Scheduled monitor starts");
 		monitor.run();

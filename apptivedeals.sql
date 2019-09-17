@@ -85,7 +85,8 @@ create table snapshots (
   id bigint primary key,
   snapshot jsonb,
   create_date timestamp,
-  update_date timestamp
+  update_date timestamp,
+  snapshot_date timestamp
 );
 
 /*

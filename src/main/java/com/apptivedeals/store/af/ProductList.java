@@ -42,11 +42,13 @@ public class ProductList {
 		
 		public static class ProductAttrs {
 			public String gender;
+			public String departmentName;
 			
 			@Override
 			public String toString() {
 				return "ProductAttrs ["
-						+ "gender=" + gender
+						+ "gender=" + gender + ", "
+						+ "departmentName=" + departmentName
 						+ "]";
 			}
 		}

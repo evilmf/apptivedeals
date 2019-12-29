@@ -33,7 +33,7 @@ class Monitor extends React.Component {
       priceFilter: {minPrice: 0, maxPrice: Number.MAX_SAFE_INTEGER, minDiscount: 65, maxDiscount: 100},
       categoryFilter: {"95":{"45":[459,467,475,502],"46":[459,467,475]},"96":{"47":[459,467,502,508],"48":[467,502]}},
       currentJQXHR: null,
-      refreshIntervalId: null
+      refreshIntervalId: null,
     };
   }
 

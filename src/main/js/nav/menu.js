@@ -21,8 +21,11 @@ class Menu extends React.Component {
             />
           </li>
           <li className="nav-item my-3 position-relative">
-            <ProductSearchBox />
-            <ProductSearchDropdown />
+            <ProductSearchBox onProductSearchBoxFocus={() => this.props.onProductSearchBoxFocus()}
+              onProductSearchBoxBlur={() => this.props.onProductSearchBoxBlur()} 
+              onProductSearchBoxChange={(keyword) => this.props.onProductSearchBoxChange(keyword)} />
+            {this.props.showProductSearchDropdown == true &&
+              <ProductSearchDropdown productSearch={this.props.productSearch} />}
           </li>
           <li className="nav-item d-flex align-items-center pl-3 my-3 mx-auto mx-lg-0">
             <SnapshotTimestamp snapshotTimestamp={this.props.snapshotTimestamp} />

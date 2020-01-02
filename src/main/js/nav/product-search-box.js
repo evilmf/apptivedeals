@@ -1,11 +1,20 @@
 const React = require('react');
 
 class ProductSearchBox extends React.Component {
+  handleProductSearchBoxChange(event) {
+	console.log("From ProductSearchBox.handleProductSearchBoxChange");
+	let userInputProductSearchKeyword = event.target.value;
+	this.props.onProductSearchBoxChange(userInputProductSearchKeyword);
+  }
+	
   render() {
     return (
       <div className="input-group px-3">
 				<input type="text" className="form-control"
-					placeholder="Search Keyword" aria-label="Product-Search" />
+					placeholder="Search Keyword" aria-label="Product-Search"
+          onFocus={() => this.props.onProductSearchBoxFocus()}
+          onBlur={() => this.props.onProductSearchBoxBlur()} 
+		  onChange={(event) => this.handleProductSearchBoxChange(event)} />
 				<div className="input-group-append">
 					<span className="input-group-text"><i className="fas fa-search"></i></span>
 				</div>

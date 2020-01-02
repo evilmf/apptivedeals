@@ -34,6 +34,7 @@ class Monitor extends React.Component {
       categoryFilter: {"95":{"45":[459,467,475,502],"46":[459,467,475]},"96":{"47":[459,467,502,508],"48":[467,502]}},
       currentJQXHR: null,
       refreshIntervalId: null,
+      search: {}
     };
   }
 
@@ -92,6 +93,79 @@ class Monitor extends React.Component {
             latestSnapshotId: (snapshotId > this.state.latestSnapshotId ? snapshotId : this.state.latestSnapshotId)
           });
         }
+      }
+    });
+  }
+
+  handleSearchBoxOnFocus() {
+    console.log("handleSearchBoxOnFocus...");
+    let searchObject = this.state.search;
+    if (searchObject.showDropdown != true && searchObject != null 
+    		&& searchObject.keyword != null && searchObject.keyword.length > 0
+    		&& searchObject.productSearchResult != null && searchObject.productSearchResult.length > 0) {
+    	let search = Object.assign({}, this.state.search, {showDropdown: true});
+    	
+        this.setState({
+          search: search
+        });
+    }
+  }
+
+  handleSearchBoxOnBlur() {
+    console.log("handleSearchBoxOnBlur...");
+    if (this.state.search) {
+	    let search = Object.assign({}, this.state.search, {showDropdown: false});
+	    this.setState({
+	      search: search
+	    });
+    }
+  }
+  
+  handleProductSearch(keyword) {
+	console.log("handleProductSearch...");
+	keyword = keyword != null ? keyword.trim() : '';
+	if (keyword.length > 0) {
+		this.getProductSearchResult(keyword);
+		this.handleSearchBoxOnFocus();
+		return;
+	}
+	
+	let search = Object.assign({}, this.state.search, {productSearchResult: [], keyword: null});
+	this.setState({
+		search: search
+	});
+	this.handleSearchBoxOnBlur();
+  }
+
+  getProductSearchResult(keyword) {
+    $.ajax({
+      dataType: 'json',
+      url: '/productSearchResult',
+      data: {'keyword' : keyword},
+      success: (data, textStatus, jqXHR) => {
+        console.log('From getProductSearchResult success...');
+        let search = Object.assign({}, this.state.search, {productSearchResult: data, keyword: keyword});
+
+        this.setState({
+          search: search
+        });
+      },
+      beforeSend: (jqXHR, settings) => {
+        console.log('From getProductSearchResult beforeSend...');
+        let currentJQXHR = this.state.search.currentJQXHR;
+        if (currentJQXHR != null) {
+          console.log("Abort previous product search request at URL: " + settings.url);
+          currentJQXHR.abort();
+        }
+      },
+      complete: (jqXHR, textStatus) => {
+        console.log("From getProductSearchResult complete...");
+        let search = Object.assign({}, this.state.search, {currentJQXHR: null});
+        this.setState({search: search});
+      },
+      error: (jqXHR, textStatus, errorThrown) => {
+    	console.log("From getProductSearchResult error...");
+    	let search = Object.assign({}, this.state.search, {productSearchResult: [], keyword: keyword});
       }
     });
   }
@@ -253,6 +327,11 @@ class Monitor extends React.Component {
           onSnapshotChange={(snapshotId) => this.handleSnapshotChange(snapshotId)}
           snapshotTimestamp={this.state.snapshotTimestamp}
           isLoading={this.state.currentJQXHR != null}
+          showProductSearchDropdown={this.state.search.showDropdown}
+          onProductSearchBoxFocus={() => this.handleSearchBoxOnFocus()}
+          onProductSearchBoxBlur={() => this.handleSearchBoxOnBlur()}
+          onProductSearchBoxChange={(keyword) => this.handleProductSearch(keyword)}
+          productSearch={this.state.search}
         />
         <PriceFilterModal priceFilter={this.state.priceFilter}
           onPriceFilterChange={(criteria) => this.handlePriceFilterChange(criteria)} />

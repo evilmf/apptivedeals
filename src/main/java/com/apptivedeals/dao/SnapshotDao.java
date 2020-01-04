@@ -28,6 +28,7 @@ import com.apptivedeals.entity.Price;
 import com.apptivedeals.entity.Snapshot;
 import com.apptivedeals.entity.Snapshot.SnapshotProduct;
 import com.apptivedeals.to.ProductSnapshot;
+import com.apptivedeals.to.ProductSnapshotHistory;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -94,6 +95,33 @@ public class SnapshotDao {
 			+ "join categories c on c.id = p.category_id "
 			+ "where sd.product_id = :product_id " 
 			+ "order by sd.id";
+	
+	private final static String GET_PRODUCT_SNAPSHOT_HISTORY = "select " + 
+			"       snapshot_id, " + 
+			"       product_id, " + 
+			"       product_name, " + 
+			"       to_char(create_date, 'yyyy-mm-dd hh24:mi:ss') || ' to ' || coalesce(to_char(next_create_date, 'yyyy-mm-dd hh24:mi:ss'), 'now') time_range, " + 
+			"       price_discount " + 
+			"from ( " + 
+			"    select " + 
+			"           sd.snapshot_id, " + 
+			"           sd.price_discount, " + 
+			"           sd.create_date, " + 
+			"           sd.is_active, " + 
+			"           p.id product_id, " + 
+			"           p.name product_name, " + 
+			"           lead(sd.create_date) over (order by sd.id) next_create_date, " + 
+			"           lead(sd.id) over (order by sd.id) next_id, " + 
+			"           lead(sd.price_discount) over (order by sd.id) next_price_discount, " + 
+			"           lead(sd.is_active) over (order by sd.id) next_is_active " + 
+			"    from snapshot_detail sd " + 
+			"    join products p on p.id = sd.product_id " + 
+			"    where sd.product_id = :product_id " + 
+			") t " + 
+			"where (is_active is true and next_is_active is false) " + 
+			"   or (is_active is true and next_is_active is true and price_discount != next_price_discount) " + 
+			"   or (is_active is true and next_is_active is null) "
+			+ "order by snapshot_id";
 	
 	public List<ProductSnapshot> getProductSnapshots(Long productId) {
 		MapSqlParameterSource params = new MapSqlParameterSource();
@@ -274,6 +302,31 @@ public class SnapshotDao {
 				
 				return snapshotId;
 			}
+		});
+	}
+	
+	public List<ProductSnapshotHistory> getProductSnapshotHistory(Long productId) {
+		MapSqlParameterSource params = new MapSqlParameterSource();
+		params.addValue("product_id", productId);
+		
+		return namedParameterJdbcTemplate.query(GET_PRODUCT_SNAPSHOT_HISTORY, params, new ResultSetExtractor<List<ProductSnapshotHistory>>() {
+			
+			@Override
+			public List<ProductSnapshotHistory> extractData(ResultSet rs) throws SQLException, DataAccessException {
+				List<ProductSnapshotHistory> productSnapshotHistories = new LinkedList<ProductSnapshotHistory>();
+				while (rs.next()) {
+					ProductSnapshotHistory productSnapshotHistory = new ProductSnapshotHistory();
+					productSnapshotHistory.snapshotId = rs.getLong("snapshot_id");
+					productSnapshotHistory.productId = rs.getLong("product_id");
+					productSnapshotHistory.productName = rs.getString("product_name");
+					productSnapshotHistory.timeRange = rs.getString("time_range");
+					productSnapshotHistory.priceDiscount = rs.getFloat("price_discount");
+					
+					productSnapshotHistories.add(productSnapshotHistory);
+				}
+				
+				return productSnapshotHistories;
+			} 
 		});
 	}
 	

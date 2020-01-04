@@ -5,7 +5,7 @@ class ProductSearchDropdownItem extends React.Component {
   render() {
     return (
       <li className="list-group-item p-0">
-        <a href="#" className="text-decoration-none">
+        <a href="#" className="text-decoration-none" data-toggle="modal" data-target="#productSnapshotHistoryModal" onClick={(event) => this.props.onProductSearchDropdownItemClick(this.props.productInfo.productId)}>
           <div className="card border-0">
             <div className="row no-gutters">
               <div className="col-8">
@@ -36,13 +36,13 @@ class ProductSearchDropdown extends React.Component {
 	let productSearchResult = this.props.productSearch.productSearchResult;
 	if (productSearchResult != null) {
 		products = $.map(productSearchResult, (element, idx) => {
-			return <ProductSearchDropdownItem productInfo={element} />;
+			return <ProductSearchDropdownItem key={element.productId} productInfo={element} onProductSearchDropdownItemClick={(productId) => this.props.onProductSearchDropdownItemClick(productId)} />;
 		});
 	}
-	
+
 	return products;
   }
-  
+
   render() {
 	let productSearchResult = this.mapSearchResult();
     return (

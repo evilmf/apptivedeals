@@ -1,5 +1,7 @@
 package com.apptivedeals.service;
 
+import java.util.List;
+
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.apptivedeals.dao.SnapshotDao;
 import com.apptivedeals.entity.Snapshot;
+import com.apptivedeals.to.ProductSnapshotHistory;
 
 @Service
 public class SnapshotService {
@@ -40,5 +43,9 @@ public class SnapshotService {
 	
 	public Snapshot getSnapshot(Long id) {
 		return snapshotDao.getSnapshot(id);
+	}
+	
+	public List<ProductSnapshotHistory> getProductSnapshotHistory(Long productId) {
+		return snapshotDao.getProductSnapshotHistory(productId);
 	}
 }

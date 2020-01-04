@@ -85,7 +85,7 @@ public class ProductDao {
 			+ "                          update_date = now()";
 
 	private final static String SEARCH_PRODUCT = "select " 
-			+ "       p.product_id, " 
+			+ "       p.id product_id, " 
 			+ "       p.name product_name, "
 			+ "       b.name brand_name, " 
 			+ "       g.name gender_name, " 

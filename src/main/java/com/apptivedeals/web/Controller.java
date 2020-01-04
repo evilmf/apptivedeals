@@ -20,6 +20,7 @@ import com.apptivedeals.service.ProductSearchService;
 import com.apptivedeals.service.SnapshotService;
 import com.apptivedeals.to.ProductSearchTo;
 import com.apptivedeals.to.ProductSnapshot;
+import com.apptivedeals.to.ProductSnapshotHistory;
 
 @RestController
 public class Controller {
@@ -87,6 +88,19 @@ public class Controller {
 		LOGGER.info("Done calling getProductSnapshot({})", productId);
 		
 		return productSnapshots;
+	}
+	
+	@GetMapping(value = "/productSnapshotHistory")
+	public List<ProductSnapshotHistory> getProductSnapshotHistory(
+			@RequestParam(name = "productId", required = true) 
+			Long productId) {
+		LOGGER.info("Calling getProductSnapshotHistory({})", productId);
+		
+		List<ProductSnapshotHistory> productSnapshotHistory = snapshotService.getProductSnapshotHistory(productId);
+		
+		LOGGER.info("Done calling getProductSnapshotHistory({})", productId);
+		
+		return productSnapshotHistory;
 	}
 }
 

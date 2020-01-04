@@ -9,6 +9,7 @@ import { PriceFilterModal } from './modal/price-filter-modal';
 import { CategoryFilterModal } from './modal/category-filter-modal';
 import { Container } from './product/container';
 import { Menu } from './nav/menu';
+import { ProductSnapshotHistoryModal } from './modal/product-snapshot-history-modal';
 /*
 6. search function (search drop down and popup modal)
 7. daily unique report pages with navigation
@@ -34,7 +35,8 @@ class Monitor extends React.Component {
       categoryFilter: {"95":{"45":[459,467,475,502],"46":[459,467,475]},"96":{"47":[459,467,502,508],"48":[467,502]}},
       currentJQXHR: null,
       refreshIntervalId: null,
-      search: {}
+      search: {},
+      productSnapshotHistory: {}
     };
   }
 
@@ -100,11 +102,11 @@ class Monitor extends React.Component {
   handleSearchBoxOnFocus() {
     console.log("handleSearchBoxOnFocus...");
     let searchObject = this.state.search;
-    if (searchObject.showDropdown != true && searchObject != null 
+    if (searchObject.showDropdown != true && searchObject != null
     		&& searchObject.keyword != null && searchObject.keyword.length > 0
     		&& searchObject.productSearchResult != null && searchObject.productSearchResult.length > 0) {
     	let search = Object.assign({}, this.state.search, {showDropdown: true});
-    	
+
         this.setState({
           search: search
         });
@@ -113,28 +115,30 @@ class Monitor extends React.Component {
 
   handleSearchBoxOnBlur() {
     console.log("handleSearchBoxOnBlur...");
-    if (this.state.search) {
-	    let search = Object.assign({}, this.state.search, {showDropdown: false});
-	    this.setState({
-	      search: search
-	    });
-    }
+    setTimeout(() => {
+    	if (this.state.search) {
+		    let search = Object.assign({}, this.state.search, {showDropdown: false});
+		    this.setState({
+		      search: search
+		    });
+    	}
+    }, 200);
   }
-  
+
   handleProductSearch(keyword) {
-	console.log("handleProductSearch...");
-	keyword = keyword != null ? keyword.trim() : '';
-	if (keyword.length > 0) {
-		this.getProductSearchResult(keyword);
-		this.handleSearchBoxOnFocus();
-		return;
-	}
-	
-	let search = Object.assign({}, this.state.search, {productSearchResult: [], keyword: null});
-	this.setState({
-		search: search
-	});
-	this.handleSearchBoxOnBlur();
+  	console.log("handleProductSearch...");
+  	keyword = keyword != null ? keyword.trim() : '';
+  	if (keyword.length > 0) {
+  		this.getProductSearchResult(keyword);
+  		this.handleSearchBoxOnFocus();
+  		return;
+  	}
+
+  	let search = Object.assign({}, this.state.search, {productSearchResult: [], keyword: null});
+  	this.setState({
+  		search: search
+  	});
+  	this.handleSearchBoxOnBlur();
   }
 
   getProductSearchResult(keyword) {
@@ -166,8 +170,44 @@ class Monitor extends React.Component {
       error: (jqXHR, textStatus, errorThrown) => {
     	console.log("From getProductSearchResult error...");
     	let search = Object.assign({}, this.state.search, {productSearchResult: [], keyword: keyword});
+    	this.setState({search: search});
       }
     });
+  }
+
+  getProductSnapshotHistory(productId) {
+	  $.ajax({
+      dataType: 'json',
+      url: '/productSnapshotHistory',
+      data: {'productId' : productId},
+      success: (data, textStatus, jqXHR) => {
+        console.log('From getProductSnapshotHistory success...');
+        let productSnapshotHistory = Object.assign({}, this.state.productSnapshotHistory, {history: data});
+        this.setState({productSnapshotHistory: productSnapshotHistory});
+      },
+      beforeSend: (jqXHR, settings) => {
+        console.log('From getProductSnapshotHistory beforeSend...');
+        let currentJQXHR = this.state.productSnapshotHistory.currentJQXHR;
+        if (currentJQXHR != null) {
+          console.log('Abort previous product snapshot history request at URL: ' + settings.url);
+          currentJQXHR.abort();
+        }
+      },
+      complete: (jqXHR, textStatus) => {
+        console.log('From getProductSnapshotHistory complete...');
+        let productSnapshotHistory = Object.assign({}, this.state.productSnapshotHistory, {currentJQXHR: null});
+        this.setState({productSnapshotHistory: productSnapshotHistory});
+      },
+      error: (jqXHR, textStatus, errorThrown) => {
+        console.log('From getProductSnapshotHistory error...');
+        let productSnapshotHistory = Object.assign({}, this.state.productSnapshotHistory, {history: null});
+        this.setState({productSnapshotHistory: productSnapshotHistory});
+      }
+    });
+  }
+
+  handleProductSearchDropdownItemOnClick(productId) {
+    this.getProductSnapshotHistory(productId);
   }
 
   getLatestSnapshot() {
@@ -223,6 +263,8 @@ class Monitor extends React.Component {
     }
 
     this.setState({currentSnapshotId: currentSnapshotId});
+
+    this.getSnapshot(snapshotId);
 
     console.log('From function handleSnapshotChange; current snapshot ID is ' + currentSnapshotId);
   }
@@ -332,6 +374,7 @@ class Monitor extends React.Component {
           onProductSearchBoxBlur={() => this.handleSearchBoxOnBlur()}
           onProductSearchBoxChange={(keyword) => this.handleProductSearch(keyword)}
           productSearch={this.state.search}
+          onProductSearchDropdownItemClick={(productId) => this.handleProductSearchDropdownItemOnClick(productId)}
         />
         <PriceFilterModal priceFilter={this.state.priceFilter}
           onPriceFilterChange={(criteria) => this.handlePriceFilterChange(criteria)} />
@@ -339,6 +382,8 @@ class Monitor extends React.Component {
           <CategoryFilterModal categoryFilter={this.state.categoryFilter}
             snapshotProducts={this.state.snapshotProducts}
             onCategoryFilterChange={(brandId, genderId, categoryId, checked) => this.handleCategoryFilterChange(brandId, genderId, categoryId, checked)} />}
+        <ProductSnapshotHistoryModal productSnapshotHistory={this.state.productSnapshotHistory.history}
+          onSnapshotChange={(snapshotId) => this.handleSnapshotChange(snapshotId)} />
         <Container snapshotProducts={this.state.snapshotProducts}
           priceFilter={this.state.priceFilter}
           categoryFilter={this.state.categoryFilter} />
@@ -348,3 +393,11 @@ class Monitor extends React.Component {
 }
 
 ReactDOM.render(<Monitor />, $('#root').get(0));
+
+$(function(){
+
+  $( "#productSnapshotHistoryModal" ).on('hidden.bs.modal', function(){
+
+  });
+
+});

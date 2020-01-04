@@ -25,7 +25,8 @@ class Menu extends React.Component {
               onProductSearchBoxBlur={() => this.props.onProductSearchBoxBlur()} 
               onProductSearchBoxChange={(keyword) => this.props.onProductSearchBoxChange(keyword)} />
             {this.props.showProductSearchDropdown == true &&
-              <ProductSearchDropdown productSearch={this.props.productSearch} />}
+              <ProductSearchDropdown productSearch={this.props.productSearch} 
+            	onProductSearchDropdownItemClick={(productId) => this.props.onProductSearchDropdownItemClick(productId)} />}
           </li>
           <li className="nav-item d-flex align-items-center pl-3 my-3 mx-auto mx-lg-0">
             <SnapshotTimestamp snapshotTimestamp={this.props.snapshotTimestamp} />

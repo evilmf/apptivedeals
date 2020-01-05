@@ -2,6 +2,7 @@ package com.apptivedeals.web;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Pattern.Flag;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.apptivedeals.entity.Snapshot;
+import com.apptivedeals.service.CategoryService;
 import com.apptivedeals.service.Monitor;
 import com.apptivedeals.service.ProductSearchService;
 import com.apptivedeals.service.SnapshotService;
@@ -35,6 +37,9 @@ public class Controller {
 	
 	@Autowired
 	private ProductSearchService productSearchService;
+	
+	@Autowired
+	private CategoryService categoryService;
 
 	@GetMapping(value = "/monitor")
 	public void test() throws IOException {
@@ -101,6 +106,16 @@ public class Controller {
 		LOGGER.info("Done calling getProductSnapshotHistory({})", productId);
 		
 		return productSnapshotHistory;
+	}
+	
+	@GetMapping(value = "/defaultCategory")
+	public Map<Long, Map<Long, List<Long>>> getDefaultCategory() {
+		LOGGER.info("Calling getDefaultCategory()");
+		
+		Map<Long, Map<Long, List<Long>>> defaultCategories = categoryService.getDefaultCategories();
+		LOGGER.info("Done calling getDefaultCategory()");
+		
+		return defaultCategories;
 	}
 }
 

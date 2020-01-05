@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -132,7 +133,7 @@ public class ProductDao {
 		});
 	}
 	
-	public int updateProductSummary(List<String> productIds) {
+	public int updateProductSummary(Set<Long> productIds) {
 		MapSqlParameterSource params = new MapSqlParameterSource();
 		params.addValue("product_ids", productIds);
 		

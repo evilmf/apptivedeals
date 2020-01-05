@@ -69,6 +69,9 @@ public class Monitor {
 		Long newSnapshotId = null;
 		if (!newActiveProducts.isEmpty() || !newInactiveProducts.isEmpty()) {
 			newSnapshotId = snapshotDao.insertSnapshotDetails(newActiveProducts, newInactiveProducts);
+			if (!newActiveProducts.isEmpty()) {
+				productDao.updateProductSummary(newActiveProducts.keySet());
+			}
 			Date snapshotDate = new Date();
 			
 			generateSnapshot(newSnapshotId, newActiveProducts, existingSnapshotProducts, snapshotDate);

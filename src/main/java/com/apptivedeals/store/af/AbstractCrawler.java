@@ -1,9 +1,12 @@
 package com.apptivedeals.store.af;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.PostConstruct;
 
@@ -110,16 +113,38 @@ public abstract class AbstractCrawler extends com.apptivedeals.store.AbstractCra
 				ProductList.class);
 		if (productList != null) {
 			ProductCategory productCategory = productList.products.get(0);
-			Gender gender = insertGender(productCategory.productAttrs.gender);
+			String genderText = getGenderFromBreadcrumbCategoryHierarchy(productCategory.breadcrumbCategoryHierarchy);
+			if (genderText == null) {
+				LOGGER.info("No gender text for product {}. Skipping", product);
+				return null;
+			}
+			Gender gender = insertGender(genderText);
 			Category category = insertCategory(productCategory.breadcrumbCategoryHierarchy
 					.get(productCategory.breadcrumbCategoryHierarchy.size() - 1).categoryNameEN);
 			p = insert(product.productId, product.name, getBaseUrl() + product.productUrl, brand.id, gender.id,
 					category.id);
 			insertCollection(product.collection, brand.id, p.id);
 			insertImage(p.id, generateImageUrl(product), true);
+		} else {
+			LOGGER.info("No product info found for product {}", product);
 		}
 
 		return p;
+	}
+	
+	private static Set<Long> GENDER_CATEGORY_CODES = new HashSet<Long>(Arrays.asList(12552L, 12551L, 12202L, 12203L));
+	private String getGenderFromBreadcrumbCategoryHierarchy(List<ProductList.ProductCategory.Category> breadcrumbCategoryHierarchy) {
+		String gender = null;
+		if (breadcrumbCategoryHierarchy != null) {
+			for (ProductList.ProductCategory.Category category : breadcrumbCategoryHierarchy) {
+				if (category.categoryId != null && GENDER_CATEGORY_CODES.contains(category.categoryId)) {
+					gender = category.categoryNameEN;
+					break;
+				}
+			}
+		}
+		
+		return gender;
 	}
 	
 	private String generateImageUrl(com.apptivedeals.store.af.Product product) {

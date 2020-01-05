@@ -35,6 +35,14 @@ public class JsoupConnect {
 					put("accept",
 							"text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3");
 					put("accept-language", "en-US,en;q=0.9,zh-TW;q=0.8,zh;q=0.7");
+					
+					put("pragma", "no-cache");
+					put("cache-control", "no-cache");
+					put("dnt", "1");
+					put("upgrade-insecure-requests", "1");
+					put("sec-fetch-site", "none");
+					put("sec-fetch-mode", "navigate");
+					
 				}
 			});
 	
@@ -54,7 +62,7 @@ public class JsoupConnect {
 		String host = getHost(url);
 		Map<String, String> cookies = getCookiesByHost(host);
 		if (cookies != null) {
-			conn.cookies(cookies);
+			//conn.cookies(cookies);
 		}
 		Response response = null;
 		int retryCount = 3;

@@ -32,7 +32,7 @@ class Monitor extends React.Component {
       snapshotProducts: null,
       snapshotTimestamp: null,
       priceFilter: {minPrice: 0, maxPrice: Number.MAX_SAFE_INTEGER, minDiscount: 65, maxDiscount: 100},
-      categoryFilter: {"95":{"45":[459,467,475,502],"46":[459,467,475]},"96":{"47":[459,467,502,508],"48":[467,502]}},
+      categoryFilter: {},
       currentJQXHR: null,
       refreshIntervalId: null,
       search: {},
@@ -41,17 +41,15 @@ class Monitor extends React.Component {
   }
 
   initCategoryFilter() {
-    const defaultCategoryFilter = this.state.categoryFilter;
     let categoryFilterCookie = Cookies.get('categoryFilter');
     let categoryFilter = null;
     if (categoryFilterCookie === null || categoryFilterCookie === undefined) {
-      categoryFilter = defaultCategoryFilter;
+      this.getDefaultCategories();
     } else {
-      categoryFilter = JSON.parse(categoryFilterCookie);
+      let categoryFilter = JSON.parse(categoryFilterCookie);
+      this.setState({categoryFilter: categoryFilter});
+      Cookies.set('categoryFilter', JSON.stringify(categoryFilter), {path: '/', domain: DOMAIN});
     }
-
-    this.setState({categoryFilter: categoryFilter});
-    Cookies.set('categoryFilter', JSON.stringify(categoryFilter), {path: '/', domain: DOMAIN});
   }
 
   initPriceFilter() {
@@ -139,6 +137,19 @@ class Monitor extends React.Component {
   		search: search
   	});
   	this.handleSearchBoxOnBlur();
+  }
+
+  getDefaultCategories() {
+    $.ajax({
+      dataType: 'json',
+      url: '/defaultCategory',
+      success: (data, textStatus, jqXHR) => {
+        this.setState({
+          categoryFilter: data
+        });
+        Cookies.set('categoryFilter', JSON.stringify(data), {path: '/', domain: DOMAIN});
+      }
+    });
   }
 
   getProductSearchResult(keyword) {
@@ -264,7 +275,7 @@ class Monitor extends React.Component {
 
     this.setState({currentSnapshotId: currentSnapshotId});
 
-    this.getSnapshot(snapshotId);
+    this.getSnapshot(currentSnapshotId);
 
     console.log('From function handleSnapshotChange; current snapshot ID is ' + currentSnapshotId);
   }

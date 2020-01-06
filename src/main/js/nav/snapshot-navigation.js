@@ -28,12 +28,12 @@ class SnapshotNavigation extends React.Component {
             />
 					</div>
 					<span className="pt-1">/</span>
-					<div className="col-auto">
+					<div className="col">
 						<input type="text" className="form-control" value={this.props.latestSnapshotId} readOnly />
 					</div>
 					<div className="col-1">
 						<a
-							className="nav-link font-weight-bold text-success bg-white float-right"
+							className="nav-link font-weight-bold text-success bg-white float-right pl-0"
 							href="#"
               onClick={() => this.props.onNextClick()}
               ><i className="fas fa-chevron-right"></i></a>

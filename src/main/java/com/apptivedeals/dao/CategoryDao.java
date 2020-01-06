@@ -36,7 +36,7 @@ public class CategoryDao {
 	private static final String GET_DEFAULT_CATEGORIES = "select distinct p.brand_id, p.gender_id, p.category_id " 
 			+ "from products p " 
 			+ "join categories c on c.id = p.category_id " 
-			+ "where c.name ilike '%jacket%' or c.name ilike '%puffer%' or c.name ilike '%polo%' or c.name ilike '%hoodie%'";
+			+ "where c.name ilike '%jacket%'";
 	
 	public Map<Long, Map<Long, List<Long>>> getDefaultCategories() {
 		return jdbcTemplate.query(GET_DEFAULT_CATEGORIES, new ResultSetExtractor<Map<Long, Map<Long, List<Long>>>>() {

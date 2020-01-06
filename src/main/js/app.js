@@ -397,7 +397,8 @@ class Monitor extends React.Component {
           onSnapshotChange={(snapshotId) => this.handleSnapshotChange(snapshotId)} />
         <Container snapshotProducts={this.state.snapshotProducts}
           priceFilter={this.state.priceFilter}
-          categoryFilter={this.state.categoryFilter} />
+          categoryFilter={this.state.categoryFilter}
+          onProductSearchDropdownItemClick={(productId) => this.handleProductSearchDropdownItemOnClick(productId)} />
       </div>
     );
   }

@@ -92,7 +92,7 @@ class Container extends React.Component {
     });
 
     let productComponentsFilterred = $.map(productsFilterred, (product, idx) => {
-      return <Product key={product.brandId + "-" + product.productId + "-" + product.isNew + "-" + product.priceDiscount} productInfo={product} />;
+      return <Product key={product.brandId + "-" + product.productId + "-" + product.isNew + "-" + product.priceDiscount} productInfo={product} onProductSearchDropdownItemClick={(productId) => this.props.onProductSearchDropdownItemClick(productId)} />;
     });
 
 	  console.log("Done compiling product list; Total number of product: " + productComponentsFilterred.length);

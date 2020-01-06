@@ -19,22 +19,34 @@ class ProductSnapshotHistoryModal extends React.Component {
 		let productSnapshotHistory = [];
 		if (this.props.productSnapshotHistory != null) {
 			productSnapshotHistory = $.map(this.props.productSnapshotHistory, (element, idx) => {
-				return <ProductSnapshotHistoryRow key={element.productId} productSnapshotInfo={element} onSnapshotChange={(snapshotId) => this.props.onSnapshotChange(snapshotId)} />
+				return <ProductSnapshotHistoryRow key={element.snapshotId} productSnapshotInfo={element} onSnapshotChange={(snapshotId) => this.props.onSnapshotChange(snapshotId)} />
 			});
 		}
 
 		return productSnapshotHistory;
 	}
 
+	getProductName() {
+		console.log("From getProductName");
+		let productName = null;
+		if (this.props.productSnapshotHistory != null && this.props.productSnapshotHistory.length > 0) {
+			productName = this.props.productSnapshotHistory[0].productName;
+		}
+
+		return productName;
+	}
+
 	render() {
 		let productSnapshotHistory = this.mapProductSnapshotHistory();
+		let productName = this.getProductName();
+
 		return (
 				<div className="modal fade" id="productSnapshotHistoryModal" tabIndex="-1" role="dialog"
 					aria-labelledby="productSnapshotHistoryModalTitle" aria-hidden="true">
 					<div className="modal-dialog modal-dialog-centered modal-xl" role="document">
 						<div className="modal-content">
 							<div className="modal-header">
-				              Product Name
+				              {productName}
 				              <button type="button" className="close" data-dismiss="modal" aria-label="Close">
 				                <span aria-hidden="true">&times;</span>
 				              </button>

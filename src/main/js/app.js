@@ -11,10 +11,7 @@ import { Container } from './product/container';
 import { Menu } from './nav/menu';
 import { ProductSnapshotHistoryModal } from './modal/product-snapshot-history-modal';
 /*
-6. search function (search drop down and popup modal)
 7. daily unique report pages with navigation
-8. auto refresh
-9. product sorting
 */
 
 var $ = require('jquery');
@@ -62,7 +59,7 @@ class Monitor extends React.Component {
     }
 
 	  const priceFilter = Object.assign({}, defaultPriceFilter, priceFilterCookie);
-	  this.setState({priceFilter, priceFilter});
+	  this.setState({priceFilter: priceFilter});
 	  Cookies.set('priceFilter', JSON.stringify(priceFilter), {path: '/', domain: DOMAIN});
   }
 

@@ -111,7 +111,7 @@ public abstract class AbstractCrawler extends com.apptivedeals.store.AbstractCra
 		LOGGER.info("Product not yet exists: {}", product);
 		ProductList productList = get(String.format(getProductInfoApiTpl(), product.productId),
 				ProductList.class);
-		if (productList != null) {
+		if (productList != null && !productList.products.isEmpty()) {
 			ProductCategory productCategory = productList.products.get(0);
 			String genderText = getGenderFromBreadcrumbCategoryHierarchy(productCategory.breadcrumbCategoryHierarchy);
 			if (genderText == null) {
